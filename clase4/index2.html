@@ -9,18 +9,58 @@
     <p>Pagina lista para ir agregando cosas.</p>
     <input id="nombre" type="text" placeholder="Nombre">
     <button type="button" id="agregar">Agregar</button>
+    <input id="filtro" type="text" placeholder="Filtro">
+    <button type="button" id="filtrar">Filtrar</button>
+    <button type="button" id="quitarfiltro">Quitar filtro</button>
     <ul id="listaSaludos"></ul>
-
     <script>
         const saludosEnMemoria = [];
+        let textoFiltro = "";
+
         const saludar = (alguien) => {return "hola " + alguien; }
-        const boton = document.getElementById("agregar");
-        const f = () => {
+        const actualizarListaSaludos = () => {
+            const ul = document.getElementById("listaSaludos");
+            ul.innerHTML = "";
+            const listaMostrada = textoFiltro === ""
+                ? saludosEnMemoria
+                : saludosEnMemoria.filter((texto) => texto.includes(textoFiltro));
+
+            listaMostrada.forEach((texto) => {
+                const li = document.createElement("li");
+                li.append(texto, " ");
+                const btnBorrar = document.createElement("button");
+                btnBorrar.type = "button";
+                btnBorrar.textContent = "Borrar";
+                btnBorrar.addEventListener("click", () => {
+                    const index = saludosEnMemoria.indexOf(texto);
+                    if (index !== -1) saludosEnMemoria.splice(index, 1);
+                    actualizarListaSaludos();
+                });
+                li.appendChild(btnBorrar);
+                ul.appendChild(li);
+            });
+        }
+        const agregarALaLista = () => {
             const nombre = document.getElementById("nombre").value;
             saludosEnMemoria.push(saludar(nombre));
-            console.log(saludosEnMemoria);            
+            actualizarListaSaludos();
         };
-        boton.addEventListener("click", f);
+        const boton = document.getElementById("agregar");
+        boton.addEventListener("click", agregarALaLista);
+
+        const filtrar = document.getElementById("filtrar");
+        filtrar.addEventListener("click", () => {
+            textoFiltro = document.getElementById("filtro").value.trim();
+            actualizarListaSaludos();
+        });
+
+        const quitarfiltro = document.getElementById("quitarfiltro")
+        quitarfiltro.addEventListener("click", () => {
+            textoFiltro = "";
+            actualizarListaSaludos();
+        });
+
+
     </script>
 
 </body>
