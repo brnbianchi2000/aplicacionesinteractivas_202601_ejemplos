@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>Pagina lista para ir agregando cosas.</p>
+    <input id="nombre" type="text" placeholder="Nombre">
+    <button type="button" id="agregar">Agregar</button>
+    <ul id="listaSaludos"></ul>
+
+    <script>
+        const saludosEnMemoria = [];
+        const saludar = (alguien) => {return "hola " + alguien; }
+        const boton = document.getElementById("agregar");
+        const f = () => {
+            const nombre = document.getElementById("nombre").value;
+            saludosEnMemoria.push(saludar(nombre));
+            console.log(saludosEnMemoria);            
+        };
+        boton.addEventListener("click", f);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const numeros = [4,5,6,7,8]
+        // numeros.forEach(n => console.log(n))
+        
+        const aux = [...numeros]
+        // aux.filter(n => n > 5).forEach(e => console.log(e))        
+        aux.map( n => n*100).forEach(e => console.log(e))
+        
+
+        function relacion(alguien, callback) {
+            // mucho codigo
+            return callback(alguien)
+        }
+        /*
+        function despedir(alguien) {
+            return "chau " + alguien
+        }
+        */
+        const despedir = (alguien) => "chau " + alguien           
+        /*
+        function saludar(alguien) {
+            return "hola " + alguien
+        }
+        */
+        // const saludar = (alguien) => "hola " + alguien      
+        // console.log(relacion("Carlos",despedir))
+        // console.log(relacion("Juan", (alguien) => `estudiando ${alguien}`))
+        
+
+    </script>
+</body>
+</html>
