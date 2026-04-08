@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rick and Morty — paso 5</title>
+</head>
+<body>
+  <h1>Personajes</h1>
+  <ul id="lista"></ul>
+  <p id="mensaje"></p>
+
+  <script>
+    const PERSONAJES_PAGINA_1 =
+      "https://rickandmortyapi.com/api/character?page=1";
+
+    const iniciar = async () => {
+      const ul = document.getElementById("lista");
+      const msg = document.getElementById("mensaje");
+      try {
+        msg.textContent = "Cargando...";
+        const res = await fetch(PERSONAJES_PAGINA_1, {
+          method: "GET",
+          mode: "cors",
+          cache: "no-store"
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const pagina = await res.json();
+        ul.innerHTML = "";
+        for (const p of pagina.results) {
+          const li = document.createElement("li");
+          li.textContent = p.name + " — " + p.status;
+          ul.appendChild(li);
+        }
+        msg.textContent = "";
+      } catch (e) {
+        msg.textContent =
+          "Error: " + (e && e.message ? e.message : e);
+        console.error(e);
+      }
+    };
+
+    iniciar();
+  </script>
+</body>
+</html>

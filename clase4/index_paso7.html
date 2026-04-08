@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rick and Morty — lista</title>
+    <style>
+      #lista li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0.35rem 0;
+      }
+      #lista img {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+    </style>
+</head>
+<body>
+  <h1>Personajes</h1>
+  <ul id="lista"></ul>
+  <p id="mensaje"></p>
+
+  <script>
+    /* Una sola URL evita un round-trip extra; la API admite CORS desde cualquier origen. */
+    const PERSONAJES_PAGINA_1 =
+      "https://rickandmortyapi.com/api/character?page=1";
+
+    const getJson = async (url) => {
+      const res = await fetch(url, { method: "GET", mode: "cors", cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    };
+
+    const crearItem = (p) => {
+      const li = document.createElement("li");
+      const img = document.createElement("img");
+      img.src = p.image;
+      img.alt = p.name;
+      img.loading = "lazy";
+      const span = document.createElement("span");
+      span.textContent = `${p.name} — ${p.status}`;
+      li.append(img, span);
+      return li;
+    };
+
+    const mostrarLista = (ul, elementos) => {
+      ul.replaceChildren(...elementos);
+    };
+
+    const iniciar = async () => {
+      const ul = document.getElementById("lista");
+      const msg = document.getElementById("mensaje");
+      try {
+        const pagina = await getJson(PERSONAJES_PAGINA_1);
+        const items = pagina.results.map(crearItem);
+        mostrarLista(ul, items);
+      } catch (e) {
+        /* "Failed to fetch" = fallo de red, CORS bloqueado, certificado, firewall, etc. */
+        msg.textContent =
+          "No se pudo obtener la lista (" + (e && e.message ? e.message : e) + "). " +
+          "Abri las herramientas de desarrollo (F12) → pestaña Red o Consola y mirá el error exacto " +
+          "(por ejemplo net::ERR_…). Probá otro navegador, desactivá VPN/proxy de momento o revisá antivirus/firewall.";
+        console.error(e);
+      }
+    };
+
+    iniciar();
+  </script>
+</body>
+</html>

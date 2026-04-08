@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rick and Morty — paso 6</title>
+  <style>
+    #lista li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.35rem 0;
+    }
+    #lista img {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personajes</h1>
+  <ul id="lista"></ul>
+  <p id="mensaje"></p>
+
+  <script>
+    const PERSONAJES_PAGINA_1 =
+      "https://rickandmortyapi.com/api/character?page=1";
+
+    const crearItem = (p) => {
+      const li = document.createElement("li");
+      const img = document.createElement("img");
+      img.src = p.image;
+      img.alt = p.name;
+      img.loading = "lazy";
+      const span = document.createElement("span");
+      span.textContent = `${p.name} — ${p.status}`;
+      li.append(img, span);
+      return li;
+    };
+
+    const iniciar = async () => {
+      const ul = document.getElementById("lista");
+      const msg = document.getElementById("mensaje");
+      try {
+        msg.textContent = "Cargando...";
+        const res = await fetch(PERSONAJES_PAGINA_1, {
+          method: "GET",
+          mode: "cors",
+          cache: "no-store"
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const pagina = await res.json();
+        const items = pagina.results.map(crearItem);
+        ul.replaceChildren(...items);
+        msg.textContent = "";
+      } catch (e) {
+        msg.textContent =
+          "No se pudo obtener la lista (" +
+          (e && e.message ? e.message : e) +
+          ").";
+        console.error(e);
+      }
+    };
+
+    iniciar();
+  </script>
+</body>
+</html>
