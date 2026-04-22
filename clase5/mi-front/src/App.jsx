@@ -8,6 +8,7 @@ import ListaPersonas from './components/ListaPersonas'
 import EcoInput from './components/EcoInput'
 import Contador from './components/Contador'
 import FormularioPersona from './components/FormularioPersona'
+import FormularioEditar from './components/FormularioEditar'
 
 const inicial = [
   { id: 1, nombre: "Ana", rol: "USER" },
@@ -20,9 +21,21 @@ function App() {
   //const items = ["a", "b","c"];
   //const nombre = "Maria"
   const [personas, setPersonas] = useState(inicial);
+  const [personaEnEdicion, setPersonaEnEdicion] = useState(null);
 
   function agregarPersona(nueva) {
     setPersonas((prev) => [...prev, nueva]);
+  }
+
+  function eliminarPersona(id) {
+    setPersonas((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  function actualizarPersona(actualizada) {
+    setPersonas((prev) =>
+      prev.map((p) => (p.id === actualizada.id ? actualizada : p))
+    );
+    setPersonaEnEdicion(null);
   }
 
   const siguienteId =
@@ -30,8 +43,21 @@ function App() {
 
   return (
     <>
-      <ListaPersonas personas={personas} />
-      <FormularioPersona onAgregar={agregarPersona} siguienteId={siguienteId} />
+      <ListaPersonas 
+        personas={personas} 
+        onEliminar={eliminarPersona} 
+        onEditar={setPersonaEnEdicion} 
+      />
+      
+      {personaEnEdicion ? (
+        <FormularioEditar 
+          persona={personaEnEdicion} 
+          onGuardar={actualizarPersona} 
+          onCancelar={() => setPersonaEnEdicion(null)} 
+        />
+      ) : (
+        <FormularioPersona onAgregar={agregarPersona} siguienteId={siguienteId} />
+      )}
 
       {/* 
       <Contador />
