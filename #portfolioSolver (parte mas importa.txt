@@ -1,0 +1,113 @@
+#portfolioSolver (parte mas importante): 
+
+
+calcRetornoRiesgo: calcula retorno multiplicando con % y riesgo multiplicando con % y ponderado y cuanto presupuesto usaste (con eso conseguis porcentajes). CALCULA RESULTADO USANDO EL GREEDY.
+
+respetaLimitesConProyeccion: que este entre el perfil elegido, los porcentajes elegidos por tipo de accion y por area.  En cada paso, decide si puede seguir agregando activos sin superar los límites que el usuario indicó es un árbol cuando esta por fuera de las cotas corta la rama y elige otro camino si hay o corta la ejecución
+
+cotaSuperior: Si encuentra una cota superior mejor, la reemplaza, tiene que haber al menos 3 (aparece en resolverTopK el limite de la lista.)
+
+incumbenteGreedy (punto de partida inteligente): ? Recorre activos en orden greedy, compra tantos como puede, para cuando se pasa de monto o riesgo y devuelve combinacion obtenida.
+Se usa para tener una referencia como CotaInferior.
+
+estado: Lo necesario para saber si avanzar con el arbol o retrocedo. Cuanto gaste, cual es mi retorno hasta ahora, cual es mi riesgo, mis composiciones, cuatos activos únicos voy.
+
+claveMemo: toda hoja que no rompe restricciones se guarda aca.
+
+maxLex: Compara por retorno mayor, y menor riesgo posible y los ordena.
+
+kmaxPorComposicion: calcula cuantas acciones igual puede comprar sin pasarte del limite de tipo de accion o sector.
+
+kmaxPorRiesgo: calcula cuantas acciones se pueden comprar sin pasarte de limite de riesgo.
+
+resolverTopK (FUNCION PRINCIPAL): 
+
+Contador de nodos. +400.000 por limitacion de programa.
+
+rellena una lista con activos y escribe para cada activo la relacion retorno/riesgo y lo ordena.
+
+A esa lista ordenada le agrega sus correlaciones con sus otros activos.
+
+sigma: matriz correlaciones calculada ,multiplica riesgo de act1 por riesgo de act2 por su correlacion.
+
+Comparator: ordena por retorno las 3 mejores hojas.
+
+IncumbenteInicial: usa la solucion greedy rapida, calcula los resultados con esa solucion, guarda el retorno/riesgo/cantidad invertida y achica los numeros con coma.
+
+DFS (Busqueda profunda): se usa un punto de partida para definir una pila con todas las posible combinaciones de inversiones. (inicia variables que va a usar en backtracking)
+
+WHILE: Hace búsqueda en profundidad usando pila. 
+Funca hasta que no hay mas estados por explorar (pila vacia)
+
+Pasar a proximo estado, ya el estado del nodo pasado no nos importa vamos al siguiente, lo sacamos de la pila.
+
+Caso base, pregunta si cartera cumple con limites (min3 max 6), calcula riesgo y retorno. Chequea si cumple con perfil, si es valida la guarda en top (mejores soluciones), si no cumple con todo la guarda en poolSinPerfil.
+
+Poda1, caminos que lleven a menos de 3 o max 6 los corto.
+
+Poda2, si es peor que algo ya hecho chau. Usa maxLex para "unir" las 3 métricas y usarlas como comparación.
+
+PodaCotaSup, calcula mejor cota de retorno, si esta es peor que una ya calculada o es menor al min retorno del  perfil la poda.
+
+Compro ese activo 1 o varias veces? No pasarme de presupuesto, no pasarme de porcentaje de tipo o sector, no pasarme de riesgo.
+
+Expansion Hijos, de los sobrevivientes arranco por el mas prometedor y actualizo los rangos aceptables. Vuelvo a chequear si se pasa de riesgo, composición o si la cota superior no mejora el umbral (peor mejor cotasuperior).
+
+CompletadoFinal, agarra las que están en el top (soluciones que son aceptables para el perfil) y si hay menos de 3, rellena con soluciones buenas pero no tan fieles al perfil (poolSinPerfil)
+
+addTop, deja los mejores 3.
+
+
+CONTROLLER: lee IO, llama soluciones.
+
+IO: Recorre y lee datos csv.
+
+UTIL: deja lindo el path y a los archivos.
+
+MODEL: PERFIL, que perfil tiene, COMPOSICION, que composición de tipo de activo, que composición de area de activo. ACTIVO, define al objeto accion. RESULTADO, define al objeto resultado.
+
+VIEW: Formato lindo cuando se hacen las preguntas al usuario.
+
+
+
+Pseudo código 
+
+
+/ activos: {ticker, retorno%, riesgo%, precio, tipo, sector}
+// perfil: riesgo máximo y retorno mínimo del inversor
+// limitesTipo% y limitesSector%: porcentajes (suman 100)
+
+OrdenarMochila(activos)                  // de mejor a peor (retorno/risgo)
+mejores ← lista vacía                    // guardará hasta K carteras
+w ← vector en 0                          // cantidades por activo
+usados ← 0
+restante ← presupuesto
+
+Explorar(i)
+    Si i = cantidad(activos)
+        Si MIN_ACTIVOS ≤ usados ≤ MAX_ACTIVOS Y CumplePerfilFinal(w)
+            ActualizarTop(mejores, w, K) // mantiene las K mejores
+        Fin si
+        Devolver
+    Fin si
+
+    // decidir cuántas unidades del activo i comprar
+    kMax ← LimitePorPresupuestoYComposicionYRiesgo(i, w, restante)  // idea: recortar por $ / tipo-sector / riesgo
+
+    Para k desde kMax hasta 0 paso −1       // probar primero compras grandes
+        Aplicar(w, i, k)
+        restante ← restante − k * precio(i)
+        Si EsFactibleParcial(w, restante)    // riesgo parcial OK y aún se pueden respetar límites con lo que queda
+            Si CotaPosible(w, i+1, restante) // si todavía se puede llegar a un buen retorno
+                Si k > 0 Y antes w[i]=0  entonces usados ← usados + 1
+                Explorar(i + 1)
+                Si k > 0 Y ahora w[i]=k entonces usados ← usados − 1
+            Fin si
+        Fin si
+        Deshacer(w, i, k)
+        restante ← restante + k * precio(i)
+    Fin para
+Fin Explorar
+
+Explorar(0)
+Devolver mejores
